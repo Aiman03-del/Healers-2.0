@@ -456,29 +456,35 @@ app.post('/api/songs', async (req, res) => {
         title: song.title,
         artist_id: song.artist_id || 'art-healers',
         album_id: song.album_id || null,
-        audio_url: song.audio_url,
-        cover_image: song.cover_image,
-        duration_seconds: song.duration_seconds || 300,
-        genre: song.genre,
-        language: song.language,
+        audio_url: song.audio_url || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        cover_image: song.cover_image || 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400',
+        duration_seconds: Number(song.duration_seconds || song.audio_duration || 300),
+        genre: song.genre || 'Devotional',
+        language: song.language || 'Bangla',
         mood: Array.isArray(song.mood) ? song.mood : (song.mood ? [song.mood] : []),
         tags: Array.isArray(song.tags) ? song.tags : (song.tags ? [song.tags] : []),
-        play_count: song.play_count || 0,
-        like_count: song.like_count || 0,
-        is_trending: song.is_trending || false,
-        is_featured: song.is_featured || false,
+        play_count: Number(song.play_count || 0),
+        like_count: Number(song.like_count || 0),
+        is_trending: Boolean(song.is_trending),
+        is_featured: Boolean(song.is_featured),
         release_date: song.release_date || new Date().toISOString().split('T')[0],
         lyrics: song.lyrics || null,
         youtube_url: song.youtube_url || null,
         lyrics_synced: song.lyrics_synced || null,
-        audio_duration: song.audio_duration || song.duration_seconds || null,
+        audio_duration: Number(song.audio_duration || song.duration_seconds || 300),
         created_at: song.created_at || new Date().toISOString()
       });
 
       if (error) throw error;
       console.log(`✅ Saved curated song "${song.title}" with ID ${song.id} to Supabase Database.`);
-    } catch (err) {
-      console.error('❌ Failed to upsert song with Supabase database:', err);
+    } catch (err: any) {
+      console.error('❌ Failed to upsert song with Supabase database:', {
+        message: err?.message || 'No message',
+        details: err?.details || 'No details',
+        hint: err?.hint || 'No hint',
+        code: err?.code || 'No code',
+        raw: typeof err === 'object' ? JSON.stringify(err) : String(err)
+      });
     }
   }
 
